@@ -12,6 +12,10 @@ function requestLocation() {
   
       getSunGoodness(lat, lon);
       getSunTimeline(lat, lon);
+      // after getSunTimeline(...)
+      const res = await fetch(`/api/suntimes?lat=${lat}&lon=${lon}`);
+      const sunTimes = await res.json();
+      getHourlyForecast(lat, lon, sunTimes);
     });
   }
 
@@ -140,4 +144,47 @@ document.addEventListener("DOMContentLoaded", () => {
   
       container.appendChild(block);
     });
+  }
+
+  function scoreForecastPoint(point) {
+    let score = 100;
+    score -= (point.values.cloudCover || 0) * 0.6;
+    score -= (point.values.humidity || 0) * 0.2;
+    if ((point.values.visibility || 10000) < 5000) score -= 15;
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }
+
+  async function getHourlyForecast(lat, lon, sunTimes) {
+    try {
+      const res = await fetch(`/api/forecast?lat=${lat}&lon=${lon}`);
+      const intervals = await res.json();
+  
+      const phases = [
+        { label: "First Light", key: "civil_twilight_begin" },
+        { label: "Sunrise", key: "sunrise" },
+        { label: "Golden Hour", key: "sunrise", offset: 30 },
+        { label: "Midday", key: "solar_noon" },
+        { label: "Golden Hour", key: "sunset", offset: -30 },
+        { label: "Sunset", key: "sunset" },
+        { label: "Last Light", key: "civil_twilight_end" },
+      ];
+  
+      const timeline = phases.map((phase) => {
+        const targetTime = new Date(new Date(sunTimes[phase.key]).getTime() + (phase.offset || 0) * 60000);
+        const hour = targetTime.getHours();
+  
+        // Match to nearest forecasted hour
+        const forecastPoint = intervals.find(i => new Date(i.startTime).getHours() === hour);
+  
+        return {
+          label: phase.label,
+          time: targetTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          score: forecastPoint ? scoreForecastPoint(forecastPoint) : "--",
+        };
+      });
+  
+      renderTimeline(timeline);
+    } catch (err) {
+      console.error("Forecast fetch failed:", err);
+    }
   }
