@@ -7,21 +7,31 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="locationModal" class="modal">
-        <div class="modal-content">
-            <h2>☀️ Welcome to Sundial</h2>
-            <p>We use your location to calculate your daily sun timeline and score.</p>
-            <button onclick="requestLocation()">Let’s go!</button>
-        </div>
+  <!-- Location Permission Modal -->
+  <div id="locationModal" class="modal">
+    <div class="modal-content">
+      <h2>☀️ Welcome to Sundial</h2>
+      <p>We use your location to calculate your daily sun timeline and score.</p>
+      <button onclick="requestLocation()">
+        <span class="gradient-text">Let's go!</span>
+      </button>
     </div>
+  </div>
+
   <main>
-    <section id="score-section">
+    <div class="content-card">
+      <!-- Main Score Section -->
+      <section id="score-section">
+        <h2 id="score-title">Today’s sky score</h2>
         <h1 id="score">
           --%
           <span id="info-icon" title="What does this mean?">ℹ️</span>
         </h1>
         <p id="description">Loading...</p>
+        <p id="score-context">Loading sun clarity…</p>
       </section>
+
+      <!-- Tooltip Info Panel -->
       <div id="info-tooltip" class="hidden">
         <p><strong>Sun Score</strong> is based on cloud cover, humidity, and visibility. It reflects the sky’s current beauty, from gloomy to stunning.</p>
         <ul>
@@ -32,14 +42,45 @@
           <li><strong>0–29:</strong> Gloomy</li>
         </ul>
       </div>
+
+      <!-- Timeline Section -->
       <section id="timeline-container">
-        <h2>Today's Sun Timeline</h2>
-        <div id="timeline-bar">
-          <!-- Phase blocks will be inserted here -->
+        <h2>Today's sun timeline</h2>
+
+        <!-- Focus Block for Active Phase -->
+        <div id="phase-focus" class="focus-card" style="display:none">
+          <div class="header">
+            <strong id="focus-title">Sunrise</strong>
+            <span id="focus-label" class="label">Pretty clear</span>
+          </div>
+          <div class="bar-container">
+            <div class="bar-fill" id="focus-fill">
+              <span id="focus-score">--%</span>
+            </div>
+          </div>
+          <div class="footer">
+            <span id="focus-time">--:--</span>
+            <span id="focus-ago">(loading)</span>
+          </div>
         </div>
+
+        <!-- Timeline List -->
+        <ul class="timeline-list" id="timeline-list">
+          <!-- JS will populate list items here -->
+        </ul>
       </section>
-    <button onclick="getSunGoodness()">Refresh</button>
+
+      <!-- Refresh Button -->
+      <button onclick="refresh()">Refresh</button>
+    </div>
   </main>
+
   <script src="script.js"></script>
+  
+  <div id="attribution-tooltip" class="attribution-tooltip hidden">
+    <span>Weather data from </span><a href="https://sunrise-sunset.org" target="_blank">Sunrise-Sunset.org</a>, <a href="https://openweathermap.org" target="_blank">OpenWeather</a>, and <a href="https://www.tomorrow.io" target="_blank">Tomorrow.io</a>.
+  </div>
+  <button id="attribution-toggle">?</button>
+
 </body>
 </html>
