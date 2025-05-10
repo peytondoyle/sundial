@@ -3,6 +3,8 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.OPENWEATHER_API_KEY;
 
+  console.log("Using API Key:", apiKey); // TEMPORARY for debugging
+
   if (!lat || !lon || !apiKey) {
     return res.status(400).json({ error: "Missing parameters or API key" });
   }

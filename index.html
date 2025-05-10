@@ -7,14 +7,32 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+    <div id="locationModal" class="modal">
+        <div class="modal-content">
+            <h2>☀️ Welcome to Sundial</h2>
+            <p>We use your location to calculate your daily sun timeline and score.</p>
+            <button onclick="requestLocation()">Let’s go!</button>
+        </div>
+    </div>
   <main>
     <section id="score-section">
-      <h1 id="score">--%</h1>
-      <p id="description">Loading...</p>
-    </section>
-    <section id="timeline">
-      <!-- Timeline content will be injected here -->
-    </section>
+        <h1 id="score">
+          --%
+          <span id="info-icon" title="What does this mean?">ℹ️</span>
+        </h1>
+        <p id="description">Loading...</p>
+      </section>
+      <div id="info-tooltip" class="hidden">
+        <p><strong>Sun Score</strong> is based on cloud cover, humidity, and visibility. It reflects the sky’s current beauty, from gloomy to stunning.</p>
+        <ul>
+          <li><strong>90–100:</strong> Stunning skies</li>
+          <li><strong>70–89:</strong> Gorgeous and glowing</li>
+          <li><strong>50–69:</strong> Pleasant</li>
+          <li><strong>30–49:</strong> Some clouds</li>
+          <li><strong>0–29:</strong> Gloomy</li>
+        </ul>
+      </div>
+    <section id="timeline"></section>
     <button onclick="getSunGoodness()">Refresh</button>
   </main>
   <script src="script.js"></script>
