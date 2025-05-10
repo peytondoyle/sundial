@@ -123,3 +123,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  function renderTimeline(phases) {
+    const container = document.getElementById("timeline-bar");
+    container.innerHTML = ""; // Clear previous
+  
+    phases.forEach((phase) => {
+      const block = document.createElement("div");
+      block.className = "phase-block";
+  
+      block.innerHTML = `
+        <div class="label">${phase.label}</div>
+        <div class="time">${phase.time}</div>
+        <div class="score">${phase.score || "--"}%</div>
+      `;
+  
+      container.appendChild(block);
+    });
+  }
