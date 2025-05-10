@@ -1,3 +1,4 @@
+
 let currentLat = null;
 let currentLon = null;
 
@@ -12,6 +13,22 @@ document.addEventListener("DOMContentLoaded", () => {
       tooltip.classList.add("hidden");
     }
   });
+
+  const toggleBtn = document.getElementById("attribution-toggle");
+  const attrTooltip = document.getElementById("attribution-tooltip");
+
+  if (toggleBtn && attrTooltip) {
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      attrTooltip.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!attrTooltip.contains(e.target) && !toggleBtn.contains(e.target)) {
+        attrTooltip.classList.add("hidden");
+      }
+    });
+  }
 });
 
 // 🌍 Location & initial load
@@ -69,88 +86,98 @@ async function getSunGoodness(lat, lon) {
     const context = document.getElementById("score-context");
 
     const contextMessages = {
-    90: [
-        "Nearly perfect skies — ideal for sun lovers!",
-        "Stunningly clear — soak it up.",
-        "This is peak sunlight — don’t miss it!",
-        "Golden hour is about to be breathtaking.",
-        "Sky’s basically begging you to go outside."
-    ],
-    80: [
-        "Clear and bright — a great time to be outside.",
-        "Sun’s out and showing off.",
-        "Almost all clear — sunglasses recommended.",
-        "It’s a good day for a walk.",
-        "Visibility and vibes are high."
-    ],
-    70: [
-        "Mostly clear, with some mild haze or clouds.",
-        "You’ll see sunbeams between the fluff.",
-        "Patchy clouds, but still pleasant.",
-        "Kind of a soft light, but still bright.",
-        "Decent clarity with a few sky interruptions."
-    ],
-    60: [
-        "Some clouds are drifting through.",
-        "Still some light — not bad at all.",
-        "Sky’s playing peekaboo with the sun.",
-        "Not perfect, but not gloomy either.",
-        "Scattered clouds — bring your optimism."
-    ],
-    50: [
-        "Split decision — half sun, half clouds.",
-        "A little murky, but there’s still light.",
-        "Moderate conditions — manage expectations.",
-        "You might squint... occasionally.",
-        "The sun’s trying — just not its hardest."
-    ],
-    40: [
-        "More clouds than clear sky.",
-        "You’ll notice the difference today.",
-        "On the dimmer side of things.",
-        "Filtered sunlight at best.",
-        "Muted vibes all around."
-    ],
-    30: [
-        "Getting gloomy now.",
-        "Not much light sneaking through.",
-        "Pretty overcast — not ideal.",
-        "Sun’s having a shy day.",
-        "Probably a good day for soft lighting."
-    ],
-    20: [
-        "Clouds have taken over.",
-        "Very little sun making an appearance.",
-        "Gray dominates the scene.",
-        "Bleak lighting — moody vibes.",
-        "Clouds win today."
-    ],
-    10: [
-        "Barely any sun at all.",
-        "Heavy gloom — dramatic, but not bright.",
-        "Hope you weren’t planning sunbathing.",
-        "Full cloud cover, full stop.",
-        "Darkness reigns (for now)."
-    ],
-    0: [
-        "Zero sun detected — the void beckons.",
-        "Fully moody. Light who?",
-        "Blackout skies — cue the candles.",
-        "Even the sun took a sick day.",
-        "Not even trying today."
-    ]
-    };
+        90: [
+          "Nearly perfect skies — ideal for sun lovers",
+          "Stunningly clear — soak it up",
+          "Peak sunlight shining down",
+          "Golden hour will be breathtaking",
+          "Skies are begging you to go outside"
+        ],
+        80: [
+          "Clear and bright vibes",
+          "The sun’s showing off",
+          "Hardly a cloud to be found",
+          "A great walk day ahead",
+          "Visibility and vibes are high"
+        ],
+        70: [
+          "Mostly clear skies with soft light",
+          "Some sunbeams peeking through",
+          "Pleasantly patchy skies",
+          "A bit hazy but still nice",
+          "Mild clouds and good vibes"
+        ],
+        60: [
+          "Some drifting clouds",
+          "Still fairly bright out",
+          "Peekaboo sun playing through",
+          "A mix of clouds and light",
+          "Scattered but hopeful skies"
+        ],
+        50: [
+          "A real 50/50 sky day",
+          "Bit murky but manageable",
+          "Some sun, some shade",
+          "A moderately lit day",
+          "The sun’s trying its best"
+        ],
+        40: [
+          "More clouds than clarity",
+          "You’ll notice a gray tint",
+          "Soft, dim lighting overhead",
+          "Filtered sunlight at best",
+          "A muted mood hangs overhead"
+        ],
+        30: [
+          "It’s looking overcast",
+          "Very little light sneaking through",
+          "Not much brightness to work with",
+          "The sun’s hiding today",
+          "It’s pretty gloomy out"
+        ],
+        20: [
+          "Cloud cover dominates",
+          "Almost no sunlight breaking through",
+          "Gray skies stretch across",
+          "A bleak, moody vibe",
+          "Clouds fully own the sky"
+        ],
+        10: [
+          "It’s nearly full gloom",
+          "Barely a ray of sunshine",
+          "Sunbathing? Not happening",
+          "Complete cloud cover",
+          "A moody, heavy sky"
+        ],
+        0: [
+          "No sunlight detected",
+          "The void reigns overhead",
+          "Skies are pitch and brooding",
+          "Even the sun skipped town",
+          "Dark, dramatic skies"
+        ]
+      };
 
-    // Find correct tier
     const tier = Math.floor(score / 10) * 10;
     const messages = contextMessages[tier] || ["Conditions unclear."];
+    const recap = messages[Math.floor(Math.random() * messages.length)];
 
-    // Pick one randomly
     if (context) {
-    context.textContent = messages[Math.floor(Math.random() * messages.length)];
+      context.textContent = recap;
     }
 
-    // 🌈 Set background gradient and theme color
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+      .then(res => res.json())
+      .then((locData) => {
+        const zip = locData?.address?.postcode;
+        if (zip && context?.textContent) {
+          context.textContent = `${context.textContent} in ${zip}`;
+        }
+      })
+      .catch((err) => {
+        console.warn("ZIP lookup failed:", err);
+      });
+
     const body = document.body;
     let gradient, themeColor;
 
@@ -180,7 +207,6 @@ async function getSunGoodness(lat, lon) {
     const isBright = score >= 65;
     document.body.setAttribute("data-brightness", isBright ? "light" : "dark");
 
-    // Update progress bar
     const barFill = document.getElementById("focus-fill");
     const barScore = document.getElementById("focus-score");
     const barLabel = document.getElementById("focus-title");
@@ -199,7 +225,6 @@ async function getSunGoodness(lat, lon) {
   }
 }
 
-// 🧠 Mood by score
 function getVibe(score) {
   if (score > 90) return "Stunning skies!";
   if (score > 75) return "Gorgeous and glowing";
@@ -209,7 +234,6 @@ function getVibe(score) {
   return "Moody gray";
 }
 
-// 🎨 Dot by phase label
 function getDotClass(phase) {
   const map = {
     "First Light": "dot-blue",
@@ -222,13 +246,11 @@ function getDotClass(phase) {
   return map[phase] || "dot-gray";
 }
 
-// ☀️ Pull sun metadata
 async function getSunMetadata(lat, lon) {
   const res = await fetch(`/api/suntimes?lat=${lat}&lon=${lon}`);
   return await res.json();
 }
 
-// 🔢 Score 1 point
 function scoreForecastPoint(point) {
   let score = 100;
   score -= (point.values.cloudCover || 0) * 0.6;
@@ -237,13 +259,11 @@ function scoreForecastPoint(point) {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-// 🕐 Timeline phase scoring
 async function getHourlyForecast(lat, lon, sunTimes) {
   const res = await fetch(`/api/forecast?lat=${lat}&lon=${lon}`);
   if (!res.ok) throw new Error("Forecast failed");
   const intervals = await res.json();
   if (!Array.isArray(intervals) || intervals.length === 0) throw new Error("No forecast data");
-  console.log("⏱ Forecast API Intervals:", intervals);
 
   const phases = [
     { label: "First Light", key: "civil_twilight_begin" },
@@ -272,7 +292,6 @@ async function getHourlyForecast(lat, lon, sunTimes) {
   renderTimeline(timeline);
 }
 
-// 🖼️ Build timeline list
 function renderTimeline(phases) {
   const list = document.getElementById("timeline-list");
   const timeText = document.getElementById("focus-time");
@@ -306,7 +325,6 @@ function renderTimeline(phases) {
   });
 }
 
-// 🔁 Manual reload
 function refresh() {
   if (!currentLat || !currentLon) return;
   getSunGoodness(currentLat, currentLon);
@@ -317,22 +335,3 @@ function refresh() {
         `<li style="opacity: 0.6;">Forecast temporarily unavailable.</li>`;
     });
 }
-
-// Attribution toggle
-document.addEventListener("DOMContentLoaded", () => {
-    const toggleBtn = document.getElementById("attribution-toggle");
-    const tooltip = document.getElementById("attribution-tooltip");
-  
-    if (toggleBtn && tooltip) {
-      toggleBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        tooltip.classList.toggle("hidden");
-      });
-  
-      document.addEventListener("click", (e) => {
-        if (!tooltip.contains(e.target) && !toggleBtn.contains(e.target)) {
-          tooltip.classList.add("hidden");
-        }
-      });
-    }
-  });

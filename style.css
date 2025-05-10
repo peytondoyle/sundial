@@ -67,7 +67,8 @@ body {
     margin-top: 0.25rem;
     text-align: center;
     line-height: 1.4;
-    max-width: 420px;
+    max-width: 381px;  /* Increased from 420px */
+    width: 100%;
   }
   
   /* Unified Section Headers */
@@ -230,8 +231,8 @@ body {
     align-items: center;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    padding: 0.6rem 0.9rem;
-    margin-bottom: 0.4rem;
+    padding: 0.4rem 0.8rem; /* reduced padding */
+    margin-bottom: 0.35rem;
     width: 350px;
     border: 1px solid rgba(255, 255, 255, 0.35);
   }
