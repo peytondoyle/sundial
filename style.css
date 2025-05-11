@@ -123,7 +123,12 @@ body {
     text-align: center;
     color: white;
     max-width: 320px;
+    min-height: 320px; /* Added height to fit all content without resizing */
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem; /* was 1rem */
   }
   
   .modal-content h2 {
@@ -132,7 +137,7 @@ body {
   }
   
   .modal-content button {
-    margin-top: 1.5rem;
+    margin-top: 0.65rem;
     background: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -369,4 +374,60 @@ body {
   
   #attribution-toggle:hover {
     background: rgba(255, 255, 255, 0.3);
+  }
+
+/* Secondary location button: white stroke, transparent fill, gradient text */
+.secondary-btn {
+    margin-top: 0.65rem !important;
+    background-color: transparent !important;
+    border: 1px solid white !important;
+    border-radius: 8px;
+    padding: 0.5rem 1.1rem !important;
+    min-width: 240px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: none !important;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: white !important;
+    font-size: 0.65rem !important; /* <-- force it */
+    font-weight: 200 !important;   /* just in case */
+    opacity: 0.75;
+  }
+  
+  /* Lock in no style changes on interaction */
+  .secondary-btn:hover,
+  .secondary-btn:focus,
+  .secondary-btn:active {
+    background-color: transparent !important;
+    border: 1px solid white !important;
+    box-shadow: none !important;
+    outline: none !important;
+    color: white !important;
+    text-decoration: none !important;
+  }
+
+  .status-message {
+    height: 1.25rem; /* ~20px tall space reserved */
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: white;
+    opacity: 0.8;
+    text-align: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .modal-content {
+    min-height: 320px;
+    height: auto;
+  }
+  
+  @media (max-width: 480px) {
+    .modal-content {
+      min-height: 60vh;
+      padding: 1.5rem;
+    }
   }

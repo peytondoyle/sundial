@@ -12,9 +12,13 @@
     <div class="modal-content">
       <h2>☀️ Welcome to Sundial</h2>
       <p>We use your location to calculate your daily sun timeline and score.</p>
-      <button onclick="requestLocation()">
+      <button class="loc-trigger">
         <span class="gradient-text">Let's go!</span>
       </button>
+      <button class="loc-trigger secondary-btn">
+        Retry Location Access
+      </button>
+      <div id="statusMessage" class="status-message"></div>
     </div>
   </div>
 

@@ -2,61 +2,93 @@
 let currentLat = null;
 let currentLon = null;
 
-// Tooltip toggle
+// Tooltip toggle and button handling
 document.addEventListener("DOMContentLoaded", () => {
-  const icon = document.getElementById("info-icon");
-  const tooltip = document.getElementById("info-tooltip");
-
-  icon?.addEventListener("click", () => tooltip.classList.toggle("hidden"));
-  document.addEventListener("click", (e) => {
-    if (!icon.contains(e.target) && !tooltip.contains(e.target)) {
-      tooltip.classList.add("hidden");
-    }
-  });
-
-  const toggleBtn = document.getElementById("attribution-toggle");
-  const attrTooltip = document.getElementById("attribution-tooltip");
-
-  if (toggleBtn && attrTooltip) {
-    toggleBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      attrTooltip.classList.toggle("hidden");
+    // 🚀 Bind all location trigger buttons
+    document.querySelectorAll(".loc-trigger").forEach(btn =>
+      btn.addEventListener("click", requestLocation)
+    );
+  
+    // ℹ️ Info tooltip toggle
+    const infoIcon = document.getElementById("info-icon");
+    const infoTooltip = document.getElementById("info-tooltip");
+  
+    infoIcon?.addEventListener("click", () => {
+      infoTooltip?.classList.toggle("hidden");
     });
-
+  
+    // 💬 Attribution tooltip toggle
+    const attrToggle = document.getElementById("attribution-toggle");
+    const attrTooltip = document.getElementById("attribution-tooltip");
+  
+    attrToggle?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      attrTooltip?.classList.toggle("hidden");
+    });
+  
+    // 🌐 Global click closes tooltips
     document.addEventListener("click", (e) => {
-      if (!attrTooltip.contains(e.target) && !toggleBtn.contains(e.target)) {
-        attrTooltip.classList.add("hidden");
+      if (!infoIcon?.contains(e.target) && !infoTooltip?.contains(e.target)) {
+        infoTooltip?.classList.add("hidden");
+      }
+      if (!attrToggle?.contains(e.target) && !attrTooltip?.contains(e.target)) {
+        attrTooltip?.classList.add("hidden");
       }
     });
-  }
-});
+  });
 
 // 🌍 Location & initial load
 function requestLocation() {
-  if (!navigator.geolocation) {
-    alert("Geolocation not supported.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(async (position) => {
-    currentLat = parseFloat(position.coords.latitude).toFixed(6);
-    currentLon = parseFloat(position.coords.longitude).toFixed(6);
-
-    document.getElementById("locationModal").style.display = "none";
-
-    try {
-      await getSunGoodness(currentLat, currentLon);
-      const sunTimes = await getSunMetadata(currentLat, currentLon);
-      await getHourlyForecast(currentLat, currentLon, sunTimes);
-    } catch (err) {
-      console.warn("Could not load forecast timeline:", err);
-      document.getElementById("timeline-list").innerHTML =
-        `<li style="opacity: 0.6; text-align:center;">Forecast temporarily unavailable.</li>`;
+    const status = document.getElementById("statusMessage");
+    if (status) status.textContent = "Requesting location...";
+  
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported by this browser.");
+      console.warn("Geolocation not supported.");
+      if (status) status.textContent = "Geolocation not supported by your browser.";
+      return;
     }
-
-    document.querySelector("main").classList.add("show");
-  });
-}
+  
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        currentLat = parseFloat(position.coords.latitude).toFixed(6);
+        currentLon = parseFloat(position.coords.longitude).toFixed(6);
+  
+        if (status) status.textContent = "Location access granted.";
+        document.getElementById("locationModal").style.display = "none";
+  
+        try {
+          // ⛅ Load sun score and forecast
+          await getSunGoodness(currentLat, currentLon);
+          const sunTimes = await getSunMetadata(currentLat, currentLon);
+          await getHourlyForecast(currentLat, currentLon, sunTimes);
+  
+          // 📍 Try to get ZIP code via reverse geocoding
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}`);
+          const locationData = await res.json();
+          const zip = locationData?.address?.postcode || null;
+  
+          // 📝 Update context message with ZIP
+          const context = document.getElementById("score-context");
+          if (zip && context && !context.textContent.includes(zip)) {
+            context.textContent = `${context.textContent} in ${zip}`;
+          }
+  
+        } catch (err) {
+          console.warn("Could not load forecast timeline:", err);
+          document.getElementById("timeline-list").innerHTML =
+            `<li style="opacity: 0.6; text-align:center;">Forecast temporarily unavailable.</li>`;
+        }
+  
+        document.querySelector("main").classList.add("show");
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("We couldn't access your location. Please check your browser permissions.");
+        if (status) status.textContent = "Location blocked. Please check your browser settings.";
+      }
+    );
+  }
 
 // ☀️ Overall sky score (NOW)
 async function getSunGoodness(lat, lon) {
