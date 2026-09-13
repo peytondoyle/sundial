@@ -31,3 +31,4 @@ Vercel project `sundial` (development / preview / production). There is no local
 through `vercel dev` or a live Vercel deployment, both pulling from Infisical. Never hand-edit
 Vercel env and never print a value: the rules are in the workspace CLAUDE.md
 (`~/Documents/Development/CLAUDE.md`, `## Secrets`).
+Deploy: Git-integrated; production builds only from `release`. A merge to `main` is a preview build. Ship with `~/.claude/scripts/promote.sh /Users/peyton/Documents/Development/sundial` after the live check; never `vercel --prod`.
