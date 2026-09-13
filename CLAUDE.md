@@ -22,3 +22,12 @@ For anything behavioral, run `vercel dev` and load the page — `/api/*` only ex
 ## Danger Zones
 - **Paid weather APIs**: every page load fans out to Tomorrow.io / OpenWeather / WeatherAPI, and production has no cache. Don't add polling, auto-refresh, or retry loops around `/api/weather` or `/api/forecast`.
 - **`node_modules` is committed** and absent from `.gitignore`. It is currently missing from disk, so `git status` shows 18 pending deletions — a blanket `git add -A` will stage them. Stage files explicitly.
+
+## Secrets
+
+Values live in Infisical project `sundial` (envs `dev` / `staging` / `prod`), synced to the
+Vercel project `sundial` (development / preview / production). There is no local dev script —
+`package.json` has no `scripts` block — so there is no local runner; secrets are only exercised
+through `vercel dev` or a live Vercel deployment, both pulling from Infisical. Never hand-edit
+Vercel env and never print a value: the rules are in the workspace CLAUDE.md
+(`~/Documents/Development/CLAUDE.md`, `## Secrets`).
